@@ -6,6 +6,9 @@
 # Copyright 2010 Google Inc.
 # Licensed under the Apache License, Version 2.0
 # http://www.apache.org/licenses/LICENSE-2.0
+"""
+author: jodi08 aka Jo Anna Mollman with help from Amanda Yonce
+"""
 
 """
 Define the extract_names() function below and change main()
@@ -31,10 +34,12 @@ Suggested milestones for incremental development:
  - Fix main() to use the extracted_names list
 """
 
+
+
+
 import sys
 import re
 import argparse
-
 
 def extract_names(filename):
     """
@@ -43,8 +48,30 @@ def extract_names(filename):
     the name-rank strings in alphabetical order.
     ['2006', 'Aaliyah 91', 'Aaron 57', 'Abagail 895', ...]
     """
-    names = []
-    # +++your code here+++
+    with open(filename, 'r') as f:  # open file
+        names = []  # for later storage of final list
+        baby_dict = {}
+        read_file = f.read()  # store file in variable
+    # print(read_file)  # print file and place it outside function to close file
+    # regex pattern to search for 1990
+        pattern = re.compile(r'Popularity in ')
+        year = pattern.finditer(read_file)
+        for num in year:
+            date = num.span()
+            names.append(read_file[date[1]:date[1] + 4])
+        # print(names)
+    with open(filename, 'r') as f:
+        for line in f:  # loop through file to find matches for year
+            # assign baby_year to pattern regex
+            baby_name = re.findall(
+                r'"right"><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td>', line)
+            for name in baby_name:  # for a year in baby_year print year
+                if name[1] not in baby_dict:
+                    baby_dict[name[1]] = name[0]
+                if name[2] not in baby_dict:
+                    baby_dict[name[2]] = name[0]
+    for item in sorted(baby_dict):
+        names.append(item + " " + baby_dict[item])
     return names
 
 
@@ -81,8 +108,16 @@ def main(args):
     # Format the resulting list as a vertical list (separated by newline \n).
     # Use the create_summary flag to decide whether to print the list
     # or to write the list to a summary file (e.g. `baby1990.html.summary`).
-
-    # +++your code here+++
+    for filename in file_list:
+        extracted_names = extract_names(filename)
+        if not create_summary:
+            print(*extracted_names, sep="\n")
+        else:
+            new_file = filename + ".summary"
+            a = open(new_file, 'w')
+            for each in extracted_names:
+                a.write(each + '\n')
+            a.close()
 
 
 if __name__ == '__main__':
